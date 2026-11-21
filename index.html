@@ -1,0 +1,641 @@
+<title>산하의 다마고치</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&display=swap">
+<style>
+  /* Layout: one centered toy — speech bubble, egg-shaped device with a pixel LCD, three buttons. Single pastel look on purpose. */
+  :root {
+    --bg: #f3f0f8;
+    --bg-dot: #e3dcee;
+    --shell-hi: #e9e2f3;
+    --shell: #cdc1e0;
+    --shell-lo: #ab9dc6;
+    --plum: #4c4063;
+    --plum-soft: #75698c;
+    --butter: #f6f2fb;
+    --butter-lo: #c9bcdd;
+    --lcd: #eef5df;
+    --paper: #fffdf8;
+    --line: #e6e0f0;
+    --ink: #4a3550;
+    --heart: #e57fa3;
+    --accent: #9a88c0;
+    --accent-lo: #7e6da6;
+    --display: "Jua", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --hand: "Gaegu", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    color-scheme: light;
+  }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--bg-dot) 2px, transparent 2.5px);
+    background-size: 26px 26px;
+    color: var(--plum);
+    font-family: var(--display);
+  }
+  .stage {
+    min-height: 100%;
+    box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px;
+    padding-block: 28px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* speech bubble */
+  .bubble {
+    position: relative;
+    background: #fff;
+    color: var(--plum);
+    font-size: 19px;
+    line-height: 1.35;
+    padding: 12px 20px;
+    border-radius: 22px;
+    box-shadow: 0 4px 0 var(--bg-dot);
+    max-width: min(320px, 100%);
+    min-height: 26px;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .bubble::after {
+    content: ""; position: absolute; left: 50%; bottom: -10px; transform: translateX(-50%) rotate(45deg);
+    width: 18px; height: 18px; background: #fff; border-radius: 0 0 5px 0;
+  }
+  .bubble.pop { animation: pop .38s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes pop { from { transform: scale(.82); } to { transform: scale(1); } }
+
+  /* the egg device */
+  .egg {
+    position: relative;
+    width: min(330px, 100%);
+    aspect-ratio: 0.84;
+    margin-top: 14px;
+    border-radius: 50% 50% 47% 47% / 57% 57% 43% 43%;
+    background:
+      radial-gradient(ellipse at 28% 16%, rgba(255,255,255,.75) 0 7%, transparent 7.5%),
+      radial-gradient(rgba(255,255,255,.35) 2px, transparent 2.6px) 0 0 / 18px 18px,
+      linear-gradient(160deg, var(--shell-hi), var(--shell) 50%, var(--shell-lo));
+    box-shadow:
+      inset -12px -16px 0 rgba(90, 70, 135, .14),
+      inset 10px 10px 0 rgba(255,255,255,.3),
+      0 14px 0 -4px #b9aed0,
+      0 26px 40px rgba(100, 80, 150, .2);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px;
+  }
+  .ring {
+    position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 7px solid #d9d1e7; box-shadow: inset 0 2px 0 rgba(0,0,0,.06);
+    z-index: -1;
+  }
+  .brand {
+    font-size: 15px; letter-spacing: .14em; color: var(--plum);
+    background: rgba(255,255,255,.55); padding: 3px 12px; border-radius: 999px;
+  }
+  .brand span { color: var(--heart); }
+  .bezel {
+    width: 66%;
+    padding: 9px;
+    background: #f8f6fc;
+    border-radius: 20px;
+    box-shadow: inset 0 3px 0 rgba(90, 70, 135, .16), 0 2px 0 rgba(255,255,255,.7);
+  }
+  .lcd {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--lcd);
+    box-shadow: inset 0 0 0 2px #d5e2c2;
+  }
+  .lcd canvas {
+    display: block; width: 100%; height: auto; aspect-ratio: 64 / 52;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    touch-action: none; cursor: grab;
+  }
+  .lcd::after { /* faint LCD pixel grid */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      repeating-linear-gradient(90deg, rgba(60,80,40,.06) 0 1px, transparent 1px calc(100% / 64)),
+      repeating-linear-gradient(0deg, rgba(60,80,40,.06) 0 1px, transparent 1px calc(100% / 52));
+  }
+
+  .buttons { display: flex; gap: 16px; }
+  .act {
+    appearance: none; border: 0; background: none; padding: 0; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    font: inherit; color: var(--plum); font-size: 14px;
+  }
+  .knob {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffffff 0 18%, var(--butter) 40%);
+    box-shadow: 0 5px 0 var(--butter-lo), inset 0 -3px 0 rgba(0,0,0,.05);
+    display: grid; place-items: center;
+    transition: transform .08s, box-shadow .08s;
+  }
+  .knob svg { width: 24px; height: 24px; }
+  .act:active .knob, .act.pressed .knob { transform: translateY(4px); box-shadow: 0 1px 0 var(--butter-lo); }
+  .act:focus-visible .knob { outline: 3px solid #fff; outline-offset: 3px; }
+  .act[aria-disabled="true"] { opacity: .55; }
+
+  .open-letter {
+    appearance: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 18px; color: #fff;
+    background: var(--accent);
+    padding: 12px 26px; border-radius: 999px;
+    box-shadow: 0 5px 0 var(--accent-lo);
+    animation: wiggle 1.4s ease-in-out infinite;
+  }
+  .open-letter.read { animation: none; background: #fff; color: var(--accent-lo); box-shadow: 0 4px 0 var(--bg-dot); font-size: 15px; padding: 9px 20px; }
+  .open-letter:focus-visible { outline: 3px solid var(--plum); outline-offset: 3px; }
+  @keyframes wiggle { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-4deg) scale(1.04); } 40% { transform: rotate(4deg) scale(1.04); } 60% { transform: rotate(0); } }
+
+  .hint { margin: 0; font-size: 14px; color: var(--plum-soft); text-align: center; text-wrap: balance; }
+
+  .sound {
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: max(12px, env(safe-area-inset-right, 0px));
+    appearance: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 13px; color: var(--plum);
+    background: rgba(255,255,255,.8); padding: 7px 12px; border-radius: 999px;
+  }
+  .sound:focus-visible { outline: 3px solid var(--plum); outline-offset: 2px; }
+
+  /* letter */
+  .letter-wrap {
+    position: fixed; inset: 0; z-index: 20;
+    display: grid; place-items: center;
+    padding-block: calc(20px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    background: rgba(70, 56, 100, .3);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    overflow-y: auto;
+  }
+  .paper {
+    position: relative;
+    width: min(420px, 100%);
+    box-sizing: border-box;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(transparent 0 33px, var(--line) 33px 34px);
+    background-position: 0 22px;
+    border-radius: 6px;
+    padding: 22px 26px 24px;
+    box-shadow: 0 18px 40px rgba(70, 56, 100, .22);
+    transform: rotate(-1.2deg);
+    animation: rise .5s cubic-bezier(.3,1.4,.5,1);
+    color: var(--ink);
+    font-family: var(--hand);
+  }
+  @keyframes rise { from { transform: translateY(40px) rotate(-4deg); opacity: 0; } to { transform: rotate(-1.2deg); opacity: 1; } }
+  .paper::before { /* washi tape */
+    content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(2deg);
+    width: 96px; height: 24px; background: rgba(196, 182, 224, .8);
+  }
+  .letter-text { margin: 0; font-size: 22px; line-height: 34px; white-space: pre-wrap; min-height: 34px; }
+  .letter-text .caret { display: inline-block; width: 2px; height: 20px; background: var(--accent); vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .sign { margin: 6px 0 0; text-align: right; font-size: 22px; line-height: 34px; font-weight: 700; color: var(--accent-lo); }
+  .paper-actions { display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; font-family: var(--display); }
+  .paper-actions button {
+    appearance: none; border: 0; cursor: pointer; font: inherit; font-size: 15px;
+    padding: 9px 18px; border-radius: 999px;
+    background: var(--accent); color: #fff; box-shadow: 0 4px 0 var(--accent-lo);
+  }
+  .paper-actions button.ghost { background: #fff; color: var(--plum); box-shadow: 0 4px 0 var(--line); }
+  .paper-actions button:focus-visible { outline: 3px solid var(--plum); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bubble.pop, .open-letter, .paper { animation: none; }
+  }
+</style>
+
+<main class="stage">
+  <div class="bubble" id="bubble" aria-live="polite">나 배고파… 밥 줘!</div>
+
+  <div class="egg">
+    <div class="ring" aria-hidden="true"></div>
+    <div class="brand">for 산하 <span>♥</span></div>
+    <div class="bezel">
+      <div class="lcd">
+        <canvas id="lcd" width="64" height="52" aria-label="화면 속 여자친구 캐릭터. 문지르면 쓰다듬기가 돼요."></canvas>
+      </div>
+    </div>
+    <div class="buttons">
+      <button class="act" id="feed" type="button">
+        <span class="knob" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3.5 4 18.2c-.5.9.2 2.1 1.2 2.1h13.6c1 0 1.7-1.2 1.2-2.1Z" fill="#fff" stroke="#4c4063" stroke-width="1.8" stroke-linejoin="round"/><rect x="8.5" y="14" width="7" height="6.3" rx="1" fill="#4c4063"/></svg>
+        </span>
+        밥 주기
+      </button>
+      <button class="act" id="pet" type="button">
+        <span class="knob" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 8a4.2 4.2 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10Z" fill="#e57fa3" stroke="#4c4063" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </span>
+        쓰다듬기
+      </button>
+      <button class="act" id="sleep" type="button">
+        <span class="knob" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M15.5 3.8A8.5 8.5 0 1 0 20.2 15 7 7 0 0 1 15.5 3.8Z" fill="#ffd860" stroke="#4c4063" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </span>
+        재우기
+      </button>
+    </div>
+  </div>
+
+  <button class="open-letter" id="openLetter" type="button" hidden>편지 열어보기 💌</button>
+  <p class="hint" id="hint">버튼을 누르거나, 화면 속 나를 손가락으로 문질러서 쓰다듬어 줘</p>
+</main>
+
+<button class="sound" id="sound" type="button" aria-pressed="true">♪ 소리 켜짐</button>
+
+<div class="letter-wrap" id="letterWrap" hidden>
+  <article class="paper" id="paper" role="dialog" aria-modal="true" aria-label="편지">
+    <p class="letter-text" id="letterText"></p>
+    <p class="sign" id="sign" hidden></p>
+    <div class="paper-actions" id="paperActions" hidden>
+      <button type="button" class="ghost" id="closeLetter">닫기</button>
+      <button type="button" id="again">한 번 더 돌봐주기</button>
+    </div>
+  </article>
+</div>
+
+<script>
+/* ───────── 여기만 고치면 돼요 ───────── */
+const LETTER = `안녕 산하!
+다마고치 속 나를 키워줘서 고마워!
+
+너가 밥을 주고, 쓰다듬어주고,
+재워준 것처럼
+나도 너를 웅냥냥 해주고 싶더라!
+
+항상 고맙고,
+오래 봤으면 좋겠어,
+사랑해:)
+
+P.S. 나 뽀뽀 좋아해..
+많이많이 해줘...`;
+const SIGN = '';   // 비워두면 맺음말 없이 끝나요
+const GAIN = { feed: 20, pet: 16, sleep: 25, rub: 6 };   // 하트 게이지 100이 되면 편지
+/* ──────────────────────────────────── */
+
+const LINES = {
+  feedStart: ['앙~ 먹여줘', '우와 주먹밥이다!'],
+  feed: ['냠냠! 너무 맛있다', '배불러~ 고마워', '너가 줘서 더 맛있어'],
+  petStart: ['헤헤…', '머리 쓰담쓰담?'],
+  pet: ['헤헤, 기분 좋아', '더 쓰다듬어 줘', '쓰담쓰담 최고야'],
+  rub: ['간지러워 히히', '좋아좋아', '거기 거기!'],
+  sleepStart: ['졸려… 자장자장 해줘', '불 꺼줘서 고마워… zZ'],
+  wake: ['잘 잤다! 꿈에 너 나왔어', '푹 잤어, 고마워', '개운해! 이제 놀자'],
+  bored: ['심심해… 놀아줘', '나 보고 싶었어?', '쓰다듬어 줄 거지?'],
+  full: '하트 가득! 편지 왔어, 눌러봐',
+  fullIdle: ['편지 아직 안 읽었지?', '편지 읽어줘!', '헤헤 나 행복해'],
+  again: '또 돌봐줄 거지? 처음부터 다시!',
+};
+
+const PAL = {
+  k: '#3b3550', h: '#5b3a2e', H: '#8a5a44', s: '#ffdcc6', e: '#2b2238', b: '#ff9db5',
+  m: '#e8577a', d: '#b9a4f0', D: '#9b84de', w: '#ffffff', r: '#ff5c8a', n: '#2f4a3a',
+  y: '#ffd860', q: '#cfc2e8', Q: '#f1ecf8', g: '#c9d6b4',
+};
+const LCD = '#eef5df';
+
+const GIRL = [
+  '....kkkkkkkk....',
+  '..kkhhhhhhhhkk..',
+  '.khhhhhhhhhhhhk.',
+  '.khHHhhhhhhhhhk.',
+  'khhHhhhhhhhhhhhk',
+  'khhhhhhhhhhhhhhk',
+  'khhsssshhsssshhk',
+  'khsssssssssssshk',
+  'khssewssssewsshk',
+  'khsseesssseesshk',
+  'khsbbssmmssbbshk',
+  'khhsssssssssshhk',
+  'khhhhhksskhhhhhk',
+  '.khhkddddddkhhk.',
+  '..kdddwddwdddk..',
+  'ksddddddddddddsk',
+  'kkDddddddddddDkk',
+  '.kDDddddddddDDk.',
+  '..kkkkkkkkkkkk..',
+  '....kk....kk....',
+];
+const EYES = {
+  open:   { 8: 'khssewssssewsshk', 9: 'khsseesssseesshk' },
+  closed: { 8: 'khsssssssssssshk', 9: 'khsseesssseesshk' },
+  happy:  { 8: 'khssessssssesshk', 9: 'khsesesssseseshk' },
+};
+const MOUTH = {
+  smile: { 10: 'khsbbssmmssbbshk' },
+  big:   { 10: 'khsbbsmmmmsbbshk' },
+  open:  { 10: 'khsbbsskkssbbshk', 11: 'khhsssskksssshhk' },
+};
+const BLANKET = [
+  'kkkkkkkkkkkkkkkk',
+  'kqqQqqQqqQqqQqqk',
+  'kqQqqQqqQqqQqqQk',
+  'kqqQqqQqqQqqQqqk',
+  'kkkkkkkkkkkkkkkk',
+];
+const BOW = ['rr.rr', '.rkr.', 'rr.rr'];
+const HEART = ['.kk.kk.', 'krrkrrk', 'krrrrrk', '.krrrk.', '..krk..', '...k...'];
+const HEART_S = ['rr.rr', 'rrrrr', '.rrr.', '..r..'];
+const ONIGIRI = ['...kkk...', '..kwwwk..', '.kwwwwwk.', 'kwwwwwwwk', 'kwwnnnwwk', 'kwnnnnnwk', '.kkkkkkk.'];
+const HAND = ['..kkkkk..', '.ksssssk.', 'ksssssssk', 'ksksksksk', '.k.k.k.k.'];
+const ZED = ['kkkk', '..k.', '.k..', 'kkkk'];
+const MOON = ['..kkk.', '.kyyk.', 'kyyk..', 'kyyk..', '.kyyk.', '..kkk.'];
+const ENVELOPE = [
+  'kkkkkkkkkkkkk',
+  'kwkwwwwwwwkwk',
+  'kwwkwwwwwkwwk',
+  'kwwwkwwwkwwwk',
+  'kwwwwkrkwwwwk',
+  'kwwwwwkwwwwwk',
+  'kwwwwwwwwwwwk',
+  'kkkkkkkkkkkkk',
+];
+
+const W = 64, H = 52;
+const cv = document.getElementById('lcd');
+const ctx = cv.getContext('2d');
+const bubble = document.getElementById('bubble');
+const openBtn = document.getElementById('openLetter');
+const hint = document.getElementById('hint');
+const btns = { feed: document.getElementById('feed'), pet: document.getElementById('pet'), sleep: document.getElementById('sleep') };
+
+let now = performance.now();
+let gauge = 0, full = false, letterOpen = false, letterRead = false;
+let state = 'idle', stateT = 0, happyUntil = 0, lastSpawn = 0, lastBite = -1;
+let lastInteract = now;
+let parts = [];
+
+function px(x, y, c) { ctx.fillStyle = c; ctx.fillRect(x | 0, y | 0, 1, 1); }
+function spr(rows, x, y, ov = {}, mono = null, skipCols = 0) {
+  for (let r = 0; r < rows.length; r++) {
+    const row = ov[r] ?? rows[r];
+    for (let c = skipCols; c < row.length; c++) {
+      const ch = row[c];
+      if (ch === '.') continue;
+      px(x + c, y + r, mono || PAL[ch]);
+    }
+  }
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+let lastLine = '';
+function say(lines) {
+  const arr = Array.isArray(lines) ? lines : [lines];
+  let s = pick(arr), n = 0;
+  while (arr.length > 1 && s === lastLine && n++ < 8) s = pick(arr);
+  lastLine = s;
+  bubble.textContent = s;
+  bubble.classList.remove('pop'); void bubble.offsetWidth; bubble.classList.add('pop');
+}
+
+/* ── sound ── */
+let audio = null, soundOn = true;
+function ensureAudio() {
+  if (audio || !soundOn) return;
+  try { audio = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audio = null; }
+}
+function beep(notes, len = 0.09, gap = 0.07) {
+  if (!soundOn) return;
+  ensureAudio(); if (!audio) return;
+  let t = audio.currentTime + 0.01;
+  for (const f of notes) {
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = 'square'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.035, t); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    o.connect(g).connect(audio.destination); o.start(t); o.stop(t + len + 0.02);
+    t += gap;
+  }
+}
+document.getElementById('sound').addEventListener('click', (ev) => {
+  soundOn = !soundOn;
+  ev.currentTarget.textContent = soundOn ? '♪ 소리 켜짐' : '♪ 소리 꺼짐';
+  ev.currentTarget.setAttribute('aria-pressed', String(soundOn));
+  if (soundOn) beep([880]);
+});
+
+/* ── game ── */
+function spawnHeart(x, y, vx = 0, vy = -0.012, life = 1300) { parts.push({ x, y, vx, vy, t0: now, life }); }
+
+function gain(n) {
+  if (full) return;
+  gauge = Math.min(100, gauge + n);
+  if (gauge >= 100) {
+    full = true;
+    state = 'celebrate'; stateT = now;
+    for (let i = 0; i < 10; i++) spawnHeart(30, 30, (Math.random() - 0.5) * 0.05, -0.01 - Math.random() * 0.02, 1600);
+    beep([523, 659, 784, 1046, 1318], 0.14, 0.11);
+    say(LINES.full);
+    setTimeout(() => { openBtn.hidden = false; hint.textContent = '화면 속 편지를 눌러도 열려'; }, 900);
+  }
+}
+
+function busy() { return state !== 'idle' || letterOpen; }
+function setButtons() {
+  for (const b of Object.values(btns)) b.setAttribute('aria-disabled', String(busy()));
+}
+
+function act(kind) {
+  ensureAudio();
+  lastInteract = now;
+  if (busy()) return;
+  state = kind; stateT = now; lastBite = -1;
+  if (kind === 'feed') { say(LINES.feedStart); beep([660, 880]); }
+  if (kind === 'pet') { say(LINES.petStart); beep([880, 990, 1180]); }
+  if (kind === 'sleep') { say(LINES.sleepStart); beep([523, 392, 330], 0.16, 0.14); }
+}
+for (const [k, b] of Object.entries(btns)) b.addEventListener('click', () => act(k));
+
+function update(t) {
+  const e = t - stateT;
+  if (state === 'feed') {
+    const bite = Math.floor(e / 420);
+    if (bite !== lastBite && bite >= 1 && bite <= 3) { lastBite = bite; beep([300 + bite * 60], 0.05); }
+    if (e > 1500) { state = 'idle'; happyUntil = t + 900; say(LINES.feed); spawnHeart(36, 24); gain(GAIN.feed); }
+  } else if (state === 'pet') {
+    if (t - lastSpawn > 320) { spawnHeart(Math.random() < 0.5 ? 20 + Math.random() * 3 : 41 + Math.random() * 3, 26); lastSpawn = t; }
+    if (e > 1500) { state = 'idle'; happyUntil = t + 800; say(LINES.pet); gain(GAIN.pet); }
+  } else if (state === 'sleep') {
+    if (e > 2600) { state = 'idle'; happyUntil = t + 1100; say(LINES.wake); beep([659, 784, 988]); spawnHeart(36, 24); gain(GAIN.sleep); }
+  } else if (state === 'celebrate') {
+    if (e > 1800) state = 'idle';
+  } else if (state === 'idle' && !letterOpen && t - lastInteract > 9000) {
+    say(full ? LINES.fullIdle : LINES.bored);
+    lastInteract = t;
+  }
+  parts = parts.filter(p => t - p.t0 < p.life);
+  setButtons();
+}
+
+function drawHUD(t) {
+  const x0 = 12;
+  const flash = full && Math.floor(t / 300) % 2 === 0 && state === 'celebrate';
+  for (let i = 0; i < 5; i++) {
+    const frac = Math.max(0, Math.min(1, gauge / 20 - i));
+    const fillCols = Math.floor(frac * 7);
+    for (let r = 0; r < HEART.length; r++) {
+      for (let c = 0; c < 7; c++) {
+        const ch = HEART[r][c];
+        if (ch === 'k') px(x0 + i * 8 + c, 2 + r, PAL.k);
+        else if (ch === 'r' && c < fillCols) px(x0 + i * 8 + c, 2 + r, flash ? PAL.y : PAL.r);
+      }
+    }
+  }
+  for (let x = 2; x < W - 2; x += 2) px(x, 10, PAL.g);
+}
+
+function draw(t) {
+  ctx.fillStyle = LCD; ctx.fillRect(0, 0, W, H);
+  for (let x = 2; x < W - 2; x += 3) px(x, 49, PAL.g);
+  drawHUD(t);
+
+  const e = t - stateT;
+  let gx = 24, gy = 28;
+  let eyes = (t % 3300) < 130 ? 'closed' : 'open';
+  let mouth = 'smile';
+
+  if (state === 'idle' && Math.floor(t / 550) % 2) gy -= 1;
+  if (state === 'celebrate') gy -= Math.round(Math.abs(Math.sin(e / 140)) * 4);
+  if (t < happyUntil || state === 'pet' || state === 'celebrate') { eyes = 'happy'; mouth = 'big'; }
+  if (full && state === 'idle' && Math.floor(t / 1400) % 3 === 0) { eyes = 'happy'; mouth = 'big'; }
+  if (state === 'feed') { eyes = 'happy'; mouth = Math.floor(e / 180) % 2 === 0 && e < 1300 ? 'open' : 'smile'; }
+  if (state === 'sleep') { eyes = 'closed'; mouth = 'smile'; }
+
+  let handX = 0;
+  if (state === 'pet') {
+    const s = Math.sin(e / 110);
+    handX = gx + 3 + Math.round(s * 3);
+    if (s > 0.3) gy += 1;
+  }
+
+  // envelope (when gauge is full)
+  if (full && !(state === 'celebrate' && e < 900)) {
+    const by = 39 + (Math.floor(t / 400) % 2);
+    spr(ENVELOPE, 5, by);
+    if (Math.floor(t / 300) % 2) { px(11, by - 6, PAL.r); px(11, by - 5, PAL.r); px(11, by - 4, PAL.r); px(11, by - 2, PAL.r); }
+  }
+
+  spr(GIRL, gx, gy, { ...EYES[eyes], ...MOUTH[mouth] });
+  spr(BOW, gx + 10, gy - 1);
+  if (state === 'sleep') spr(BLANKET, gx, gy + 14);
+
+  if (state === 'feed') {
+    const bites = Math.min(3, Math.floor(e / 420));
+    if (bites < 3) spr(ONIGIRI, 43, 41, {}, null, bites * 3);
+  }
+  if (state === 'pet') spr(HAND, handX, gy - 5);
+
+  for (const p of parts) {
+    const a = t - p.t0;
+    const fade = a > p.life * 0.7 && Math.floor(a / 80) % 2;
+    if (!fade) spr(HEART_S, p.x + p.vx * a - 2, p.y + p.vy * a);
+  }
+
+  if (state === 'sleep') {
+    ctx.fillStyle = 'rgba(30, 26, 76, 0.55)'; ctx.fillRect(0, 0, W, H);
+    spr(MOON, 54, 13);
+    for (let i = 0; i < 3; i++) {
+      const ph = ((e / 700) + i / 3) % 1;
+      spr(ZED, gx + 15 + ph * 6, gy + 2 - ph * 12, {}, '#fff3b0');
+    }
+  }
+}
+
+function frame(t) {
+  now = t;
+  update(t);
+  draw(t);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ── rub the girl on screen to pet her ── */
+let down = false, moved = 0, rubAcc = 0, lastP = null;
+function toLogical(ev) {
+  const r = cv.getBoundingClientRect();
+  return { x: (ev.clientX - r.left) / r.width * W, y: (ev.clientY - r.top) / r.height * H };
+}
+cv.addEventListener('pointerdown', (ev) => {
+  ensureAudio();
+  down = true; moved = 0; lastP = { x: ev.clientX, y: ev.clientY };
+  try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
+});
+cv.addEventListener('pointermove', (ev) => {
+  if (!down || !lastP) return;
+  const d = Math.hypot(ev.clientX - lastP.x, ev.clientY - lastP.y);
+  lastP = { x: ev.clientX, y: ev.clientY };
+  moved += d;
+  const p = toLogical(ev);
+  const onGirl = p.x > 20 && p.x < 44 && p.y > 20 && p.y < 50;
+  if (!onGirl || state !== 'idle' || letterOpen) return;
+  rubAcc += d;
+  if (rubAcc > 70) {
+    rubAcc = 0;
+    lastInteract = now;
+    happyUntil = now + 700;
+    spawnHeart(p.x, p.y - 4);
+    beep([1180], 0.05);
+    if (Math.random() < 0.4) say(LINES.rub);
+    gain(GAIN.rub);
+  }
+});
+function endPointer(ev) {
+  if (down && moved < 8 && full && state === 'idle') openLetter();
+  down = false; lastP = null;
+}
+cv.addEventListener('pointerup', endPointer);
+cv.addEventListener('pointercancel', () => { down = false; lastP = null; });
+
+/* ── letter ── */
+const wrap = document.getElementById('letterWrap');
+const textEl = document.getElementById('letterText');
+const signEl = document.getElementById('sign');
+const actionsEl = document.getElementById('paperActions');
+let typer = null, typed = 0;
+const chars = Array.from(LETTER);
+
+function finishTyping() {
+  clearInterval(typer); typer = null;
+  textEl.textContent = LETTER;
+  signEl.textContent = '— ' + SIGN;
+  signEl.hidden = !SIGN; actionsEl.hidden = false;
+}
+function openLetter() {
+  if (letterOpen) return;
+  letterOpen = true; letterRead = true;
+  wrap.hidden = false;
+  beep([784, 988, 1175], 0.12, 0.1);
+  textEl.textContent = ''; signEl.hidden = true; actionsEl.hidden = true; typed = 0;
+  const caret = document.createElement('span'); caret.className = 'caret';
+  typer = setInterval(() => {
+    typed++;
+    textEl.textContent = chars.slice(0, typed).join('');
+    textEl.appendChild(caret);
+    if (typed >= chars.length) finishTyping();
+  }, 55);
+}
+function closeLetter() {
+  if (typer) finishTyping();
+  wrap.hidden = true; letterOpen = false; lastInteract = now;
+  openBtn.textContent = '편지 다시 보기'; openBtn.classList.add('read');
+}
+openBtn.addEventListener('click', openLetter);
+document.getElementById('paper').addEventListener('click', (ev) => { if (typer && !ev.target.closest('button')) finishTyping(); });
+document.getElementById('closeLetter').addEventListener('click', closeLetter);
+document.getElementById('again').addEventListener('click', () => {
+  closeLetter();
+  gauge = 0; full = false; state = 'idle';
+  hint.textContent = '버튼을 누르거나, 화면 속 나를 손가락으로 문질러서 쓰다듬어 줘';
+  say(LINES.again);
+});
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && letterOpen) closeLetter(); });
+</script>
